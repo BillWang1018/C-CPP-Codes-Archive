@@ -15,7 +15,7 @@ int main() {
             flag = i;
             while(str[flag] >= '0' && str[flag] <= '9')
                 flag++;
-            num = atoi(str.substr(i, flag-i+1).c_str());
+            num = atoi(str.substr(i, flag-i+1).c_str());   
             for(int j{}; j<num; j++)
                 cout << ch;
             i = flag;
