@@ -10,8 +10,8 @@ int main() {
             continue;
         }
         ll n = ((N+1)/2)-1;
-        ll n_1st = 1+n*2*n;
-        ll n_Nth = n_1st + (N-1)*2;
+        // n_1st = 1+n*2*n;
+        ll n_Nth = 1+n*(4+2*n);
 
         cout << n_Nth*3 - 6 << "\n";
     }
