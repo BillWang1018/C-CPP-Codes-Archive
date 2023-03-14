@@ -27,8 +27,8 @@ int main() {
     int* (*count) (char*);
     count = count_chars;
 
-    // getline(&str, &maxsize, stdin);
-    fgets(str, maxsize, stdin);
+    getline(&str, &maxsize, stdin);
+    // fgets(str, maxsize, stdin);
 
     int *counter = (*count)(str);
 
