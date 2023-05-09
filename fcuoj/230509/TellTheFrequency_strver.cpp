@@ -25,7 +25,7 @@ int main() {
                 ans[j++] = {(char)i, count[i]};
 
         sort(ans, ans+j, [](st a, st b) {
-            return (a.count < b.count) ? true : (a.ch > b.ch);
+            return (a.count != b.count) ? (a.count < b.count) : (a.ch > b.ch);
         });
 
         for(int i{}; i<j; i++)
