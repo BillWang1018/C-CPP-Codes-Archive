@@ -10,7 +10,7 @@ struct Work {
 };
 
 int main() {
-    freopen("output.txt","w",stdout);
+    // freopen("output.txt","w",stdout);
     int T, N;
     double a,b;
     cin >> T;
