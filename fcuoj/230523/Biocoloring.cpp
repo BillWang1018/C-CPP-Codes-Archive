@@ -16,7 +16,7 @@ int main() {
         color[0] = 1;
 
         bool flag = true; // if case is bicolorable
-        for(int i{}; i<M; i++) {
+        for(int i{}; i<N; i++) {
             bool hasColorA, hasColorB;
             hasColorA = hasColorB = false;
             
