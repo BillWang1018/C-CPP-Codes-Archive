@@ -2,6 +2,8 @@
     "files.associations": {
         "iostream": "cpp",
         "iomanip": "cpp",
-        "tuple": "cpp"
+        "tuple": "cpp",
+        "array": "c",
+        "string": "c"
     }
 }
