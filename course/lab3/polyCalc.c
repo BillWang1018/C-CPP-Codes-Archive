@@ -12,6 +12,9 @@
 #define MAX_POLYS 30
 // #define MAX_TERMS 10        // max terms of each polynominal can hold
 
+#define min(a,b)    (((a) < (b)) ? (a) : (b))
+#define max(a,b)    (((a) > (b)) ? (a) : (b))
+
 typedef struct Polynominal {
     double coefficient;
     int exponent;
@@ -19,12 +22,12 @@ typedef struct Polynominal {
 } Poly;
 
 void delList(char);
-void push(char, double, int);
+void pushList(char, double, int);
+void push(Poly**, double, int);
 
 char *substr();
 void readPoly();
 void printPoly();
-// void printPolyList();
 void Padd();
 void Pmult();
 void Peval();
@@ -46,10 +49,9 @@ int main() {
             break;
         case '2':
             printPoly();
-            // printPolyList();
             break;
         case '3':
-            // Padd();
+            Padd();
             break;
         case '4':
             // Pmult();
@@ -67,6 +69,8 @@ int main() {
     return 0;
 }
 
+
+
 void delList(char i) {
     Poly *cur = polyHead[i], *tmp;
     if(cur == NULL) return;
@@ -74,27 +78,42 @@ void delList(char i) {
         tmp = cur->nterm;
         free(cur);
         cur = tmp;
-        printf("DEBUG 6 | freeing space for %d\n", i);
     }
     polyHead[i] = NULL;
     polyBack[i] = NULL;
-    printf("DEBUG 7 | reseting array for %d\n", i);
 }
 
-void push(char i, double co, int ex) {
+void pushList(char i, double co, int ex) {
     Poly *node = malloc(sizeof(Poly));
     node->co = co;
     node->ex = ex;
     node->nterm = NULL;
 
     if(polyBack[i] == NULL) {
-        printf("DEBUG 3 | creating at: %d | %lf | %d\n", i, co, ex);
         polyBack[i] = node;
         polyHead[i] = node;
     } else {
-        printf("DEBUG 4 | pushing  at: %d | %lf | %d\n", i, co, ex);
         polyBack[i]->nterm = node;
         polyBack[i] = node;
+    }
+
+}
+
+void push(Poly **head, double co, int ex) {
+    Poly *node = malloc(sizeof(Poly));
+    node->co = co;
+    node->ex = ex;
+    node->nterm = NULL;
+
+
+    if(*head == NULL) {
+        *head = node;
+    } else {
+        Poly *tmp = *head;
+        while(tmp->nterm != NULL) {
+            tmp = tmp->nterm;
+        }
+        tmp->nterm = node;
     }
 
 }
@@ -105,6 +124,28 @@ char *substr(char* str, int n) {
     strncpy(sub, str, n);
     sub[n] = '\0'; // place the null terminator
     return sub;
+}
+
+void printfPoly(Poly **head) {
+    char firstTerm = 1;
+    Poly **tmp = head;
+    while((*tmp) != NULL) {
+
+        if((*tmp)->co >= 0 && !firstTerm)
+            printf("+");
+        printf("%.1lf", (*tmp)->co);
+        if((*tmp)->ex != 0)
+            printf("x");
+        if((*tmp)->ex != 0 && (*tmp)->ex != 1)
+            printf("^%d", (*tmp)->ex);
+
+        (*tmp) = (*tmp)->nterm;
+
+        firstTerm = 0;
+
+    }
+
+    printf("\n");
 }
 
 /* POLYNOMINALS METHODS START FROM HERE */
@@ -201,7 +242,7 @@ void readPoly() {
         }
         
         // store data
-        push(alpha, dco, iex);
+        pushList(alpha, dco, iex);
         // polys_array[alpha][term].co = dco;
         // polys_array[alpha][term].ex = iex;
         // term++;
@@ -222,21 +263,7 @@ void printPoly() {
     c = altoi(c);
     node = polyHead[c];
 
-    while(node != NULL) {
-
-        if((node->co >= 0 && node!=polyHead[c]))
-            printf("+");
-        printf("%.1lf", node->co);
-        if(node->ex != 0)
-            printf("x");
-        if(node->ex != 0 && node->ex != 1)
-            printf("^%d", node->ex);
-
-        node = node->nterm;
-
-    }
-
-    printf("\n");
+    printfPoly(&node);
 }
 /*
 void printPoly() {
@@ -261,6 +288,49 @@ void printPoly() {
     printf("\n");
 }
 */
+
+void Padd() {
+    char c1, c2;
+    fflush(stdin);
+    printf("Enter two polynominals to add: ");
+    scanf("%c %c", &c1, &c2);
+    c1 = altoi(c1), c2 = altoi(c2);
+    Poly *ans = NULL, **ansHead = &ans;
+    Poly *p1 = polyHead[c1], *p2 = polyHead[c2];
+    if(p1 == NULL || p2 == NULL) {
+        printf("The variable(s) is empty!\n");
+        return;
+    }
+    while(p1 != NULL || p2 != NULL) {
+        if(p1 == NULL) {
+            push(&ans, p2->co, p2->ex);
+            p2 = p2->nterm;
+            continue;
+        }
+        if(p2 == NULL) {
+            push(&ans, p1->co, p1->ex);
+            p1 = p1->nterm;
+            continue;
+        }
+
+        if(p1->ex > p2->ex) {
+            push(&ans, p1->co, p1->ex);
+            p1 = p1->nterm;
+        } else
+        if(p1->ex < p2->ex) {
+            push(&ans, p2->co, p2->ex);
+            p2 = p2->nterm;
+        } else
+        if(p1->ex == p2->ex) {
+            push(&ans, (p1->co + p2->co), p1->ex);
+            p1 = p1->nterm;
+            p2 = p2->nterm;
+        }
+    }
+
+    printfPoly(ansHead);
+
+}
 
 
 
