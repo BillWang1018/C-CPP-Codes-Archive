@@ -57,7 +57,7 @@ int main() {
             // Pmult();
             break;
         case '5':
-            // Peval();
+            Peval();
             break;
         
         default:
@@ -84,7 +84,7 @@ void delList(char i) {
 }
 
 void pushList(char i, double co, int ex) {
-    Poly *node = malloc(sizeof(Poly));
+    Poly *node = (Poly *)malloc(sizeof(Poly));
     node->co = co;
     node->ex = ex;
     node->nterm = NULL;
@@ -100,7 +100,7 @@ void pushList(char i, double co, int ex) {
 }
 
 void push(Poly **head, double co, int ex) {
-    Poly *node = malloc(sizeof(Poly));
+    Poly *node = (Poly *)malloc(sizeof(Poly));
     node->co = co;
     node->ex = ex;
     node->nterm = NULL;
@@ -329,6 +329,23 @@ void Padd() {
     }
 
     printfPoly(ansHead);
+
+}
+
+void Peval() {
+    double x, ans=0;
+    char c;
+    fflush(stdin);
+    scanf("%lf %c", &x, &c);
+    c = altoi(c);
+    Poly *p = polyHead[c];
+    while(p != NULL) {
+        ans += p->co * pow(x, p->ex);
+        p = p->nterm;
+    }
+
+    printf("%lf\n", ans);
+
 
 }
 
