@@ -2,14 +2,16 @@
 #include <string.h>
 #include <stdlib.h>
 int main() {
-    char str[] = "123x^456+12x^45";
-    char *ptr = str, *ptr1;
-    printf("%s\n", ptr);
-    ptr = strtok(str, "^");
-    printf("%s\n", ptr);
-    ptr1 = strtok(ptr, "x");
-    printf("%s\n", ptr);
+    int i, *pi, **ppi;
+    i=10;
+    pi = &i;
+    ppi = &pi;
 
-    printf("%f", atof("+1.23"));
+    printf("%d\n", i);
+    *pi = 1;
+    printf("%d\n", i);
+    *ppi = 2;
+    printf("%d\n", i);
+    
 
 }
