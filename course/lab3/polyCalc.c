@@ -74,6 +74,7 @@ int main() {
             Peval();
             break;
         case '6':
+            printf("leave\n");
             return 0;
         }
         // flush unwanted input
