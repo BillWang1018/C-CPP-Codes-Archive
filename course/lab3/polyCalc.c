@@ -275,7 +275,7 @@ void readPoly() {
         else if(*iptr == '\0' || (*iptr == '+' || *iptr == '-')) {
             iex = 1;
         }
-        // the input is not illegal 
+        // the input is illegal 
         else {
             printf("erro3 at - %c", *iptr);
             readPoly();
