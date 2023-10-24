@@ -320,34 +320,46 @@ void Padd() {
         return;
     }
     // iterate p1 & p2
-    while(p1 != NULL || p2 != NULL) {
+    while(1) {
+        printf("-\n");
+        if(p1 == NULL && p2 == NULL) break;
+        printf("DEBUG | %d | %d\n", p1->ex, p2->ex); // SEGMENTATION ERR HERE //
         // if one of two poly has reach the end
         if(p1 == NULL) {
             push(&ans, p2->co, p2->ex);
             p2 = p2->nterm;
+            printf("DEBUG | break 1.\n");
             continue;
         }
         if(p2 == NULL) {
             push(&ans, p1->co, p1->ex);
             p1 = p1->nterm;
+            printf("DEBUG | break 2.\n");
             continue;
         }
         // compare the exp. of two polys
         if(p1->ex > p2->ex) {
             push(&ans, p1->co, p1->ex);
             p1 = p1->nterm;
+            printf("DEBUG | break 3.\n");
+            continue;
         }
         if(p1->ex < p2->ex) {
             push(&ans, p2->co, p2->ex);
             p2 = p2->nterm;
+            printf("DEBUG | break 4.\n");
+            continue;
         }
         if(p1->ex == p2->ex) {
             push(&ans, (p1->co + p2->co), p1->ex);
             p1 = p1->nterm;
             p2 = p2->nterm;
+            printf("DEBUG | break 5.\n");
+            continue;
         }
     }
 
+    printf("DEBUG | loop complete.\n");
     printfPoly(*ansHead);
     delList(ansHead);
 

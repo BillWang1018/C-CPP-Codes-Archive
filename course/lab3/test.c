@@ -10,7 +10,7 @@ int main() {
     printf("%d\n", i);
     *pi = 1;
     printf("%d\n", i);
-    *ppi = 2;
+    **ppi = 2;
     printf("%d\n", i);
     
 

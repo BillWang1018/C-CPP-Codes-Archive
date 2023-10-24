@@ -1,6 +1,5 @@
-#define INIT_SIZE 50
+#define INIT_SIZE 150
 #define MAX_COL   1000
-#define index(A) ((A)-'A')
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +15,8 @@ typedef struct {
 
 // mats[n][0] stores information, index of row/col starts from 1
 Term *mats[30] = {0};
+// count matrix count
+int mat_count=0;
 
 // Append matrix by INIT_SIZE
 void appendMatrix(Term **);
@@ -40,24 +41,25 @@ Term* matrixMultiply();
 
 int main() {
 
-    while(1) {
-        char c, var;
+    char c, var;
+    while(scanf("%d", &c) != EOF) {
         // * means to discard, %*c to discard extra \n 
-        scanf("%c%*c", &c);
+        getchar();
+        
         switch (c) {
-            case '1':
+            case 1:
                 readSparseMatrixs();
                 break;
-            case '2':
+            case 2:
                 printSparseMatrix();
                 break;
-            case '3':
+            case 3:
                 addSparseMatrix();
                 break;
-            case '4':
+            case 4:
                 fastTranspose();
                 break;
-            case '5':
+            case 5:
                 matrixMultiply();
                 break;
             default:
@@ -73,7 +75,7 @@ int main() {
 void appendMatrix(Term **mat) {
     Term *tmp;
     if(*mat) {
-        tmp = (Term*) realloc(*mat, sizeof(Term) * (INIT_SIZE + (*mat)[0].val));
+        tmp = (Term*) realloc(*mat, sizeof(Term) * (INIT_SIZE + (*mat)[0].val + 1));
     }
     else {
         tmp = (Term*) malloc (sizeof(Term) * (INIT_SIZE + 1));
@@ -99,12 +101,9 @@ void pushTerm(Term **mat, int col, int row, lld val) {
     (*mat)[last].col = col;
     (*mat)[last].row = row;
     (*mat)[last].val = val;
-    // printf("Add an entry at %d: (%d, %d | val=%lld)\n", last, col, row, val);
 }
 
 void resetMatrix(Term **mat) {
-    // free(mat[var]);... // having problem with free() QAQ
-    // debugPrint(*mat);
     if (!(*mat)) 
         appendMatrix(mat);
     (*mat)[0].col = 0;
@@ -137,12 +136,13 @@ void printSingleMatrix(Term *mat) {
 
 void readSparseMatrixs() {
     char var;
-    scanf("%c%*c", &var);
+    scanf("%c", &var);
     var -= 'A';
+    mat_count++;
 
     int COL, ROW, count;
     lld n;
-    scanf("%d%d%*c", &COL, &ROW);
+    scanf("%d %d", &COL, &ROW);
 
     while(1) {
         count = 0;
@@ -155,10 +155,9 @@ void readSparseMatrixs() {
                     count++;
                 }
             }
-            scanf("%*c");
         }
 
-        if(count > (COL*ROW)/2) {
+        if(count >= (COL*ROW)/2) {
             printf("Error. Please try again.\n");
             continue;
         } else {
@@ -170,16 +169,16 @@ void readSparseMatrixs() {
     mats[var][0].col = COL;
     mats[var][0].row = ROW;
 
-    // printf("mats[var][0] = (%d, %d, %d)\n", COL, ROW, count);
-    // printf("mats[var][1] = (%d, %d, %d)\n", mats[var][1].col, mats[var][1].row, mats[var][1].val);
 }
 
 void printSparseMatrix() {
+    int cnt = mat_count;
     for(char var='A'; var<='Z'; var++) {
         if(!mats[var-'A']) continue;
         printf("%c:\n", var);
         printSingleMatrix(mats[var-'A']);
-        printf("\n");
+        if(--cnt)
+            printf("\n");
     }
 }
 
@@ -188,7 +187,7 @@ Term *addSparseMatrix() {
     resetMatrix(&ans);
 
     char a, b;
-    scanf("%c %c%*c", &a, &b);
+    scanf("%c %c", &a, &b);
     a -= 'A', b -= 'A';
 
     if(mats[a] == NULL || mats[b] == NULL) {
@@ -232,7 +231,7 @@ Term *fastTranspose() {
     resetMatrix(&ans);
 
     char a;
-    scanf("%c%*c", &a);
+    scanf("%c", &a);
     a -= 'A';
     if(mats[a] == NULL) {
         return NULL;
@@ -271,7 +270,7 @@ Term *matrixMultiply() {
     resetMatrix(&ans);
 
     char a, b;
-    scanf("%c %c%*c", &a, &b);
+    scanf("%c %c", &a, &b);
     a -= 'A', b -= 'A';
 
     if(mats[a] == NULL || mats[b] == NULL) {
@@ -319,20 +318,3 @@ Term *matrixMultiply() {
 
     return ans;
 }
-
-/*
-
-1
-A
-3 3
-1 2 3
-4 0 0
-0 0 0
-1
-B
-3 3
-0 0 1
-0 0 0
-3 2 1
-
-*/
