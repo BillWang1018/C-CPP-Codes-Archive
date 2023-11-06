@@ -146,10 +146,10 @@ int main() {
     char *post = (char*) malloc(sizeof(char) * MAX_CHAR);
     int  *vals = (int*) malloc(sizeof(int) * 255);
     int  *flag = (int*) malloc(sizeof(int) * 255);
-    memset(flag, 0, sizeof(int) * 255);
     // int skipLines = 1;
     while(scanf("%s", in) != EOF) {
         // printf(skipLines-- > 0 ? "" : "");
+        memset(flag, 0, sizeof(int) * 255);
         voidgetValue(in, vals);
         printf("infix expression:%s\n", in);
         for(char *c=in; *c != '\0'; c++) {
