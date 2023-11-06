@@ -51,7 +51,7 @@ void pushC(CharStack *st, char c) {
     if(st->top < MAX_CHAR-1)
         st->stack[st->top++] = c;
 }
-void pushD(DoubleStack *st, int c) {
+void pushD(DoubleStack *st, double c) {
     if(st->top < MAX_CHAR-1)
         st->stack[st->top++] = c;
 }
@@ -79,17 +79,29 @@ int precedence(char c) {
     return -1;
 }
 
-void voidintoPostfix(char *str, char *post) {
+void voidgetValue(char *infix, int *vals) {
+    int *hasVal = (int*) malloc(sizeof(int) * 255);
+    memset(hasVal, 0, sizeof(int) * 255);
+    for(char *c=infix; *c != '\0'; c++) {
+        if(isalpha(*c) && !hasVal[*c]) {
+            // printf("%c:", *c);
+            scanf("%d", &vals[*c]);
+            hasVal[*c] = 1;
+        }
+    }
+}
+
+void voidintoPostfix(char *infix, char *post) {
     // post = (char*) malloc(sizeof(char) * MAX_CHAR);
     strcpy(post, "");
     int flag = 1;
-    char *c = str, latest = *c;
+    char *c = infix, latest = *c;
     CharStack *s = newCharStack();
     while(*c != '\0') {
         // printf("s.top = %d | post = %s\n", s->top, post);
         // printf("s.top = %d | post = %s\n", s->top, post);
         if(isalnum(*c)) {
-            if(isalnum(latest) && *c != *str) {
+            if(isalnum(latest) && *c != *infix) {
                 flag = 0;
                 break;
             }
@@ -110,7 +122,7 @@ void voidintoPostfix(char *str, char *post) {
             flag = 0;
             break;
         } else {
-            if(!isalnum(latest) && *c != *str && precedence(latest) > 0) {
+            if(!isalnum(latest) && *c != *infix && precedence(latest) > 0) {
                 flag = 0;
                 break;
             }
@@ -130,22 +142,12 @@ void voidintoPostfix(char *str, char *post) {
     }
 } 
 
-void voidgetValue(char *infix, int *vals) {
+double doubleeval(char *infix, int *vals) {
     char *postfix = (char*) malloc(sizeof(char) * MAX_CHAR);
     voidintoPostfix(infix, postfix);
-    printf("Infix:%s\nPostfix:%s\n", infix, postfix);
+    // printf("Infix:\t%s\nPostfix:%s\n", infix, postfix);
     if(!strcmp(postfix, "ERROR")) {
-        return;
-    }
-    int *isEmpty = (int*) malloc(sizeof(int) * 255);
-    memset(vals, 0, 255);
-    memset(isEmpty, 1, 255);
-    for(char *c=infix; *c != '\0'; c++) {
-        if(isalpha(*c) && isEmpty) {
-            printf("%c:", *c);
-            scanf("%d", &vals[*c]);
-            isEmpty[*c] = 0;
-        }
+        return 0;
     }
     DoubleStack *s = newDoubleStack();
     for(char *c=postfix; *c != '\0'; c++) {
@@ -163,7 +165,8 @@ void voidgetValue(char *infix, int *vals) {
                 a = popD(s);
             if(c-2 >= postfix)
                 b = popD(s);
-            pushD(s, a+b);
+            pushD(s, b+a);
+            // printf("ab+=%lf\n", topD(s));
         }
         if(*c == '-') {
             a=b=0;
@@ -172,6 +175,7 @@ void voidgetValue(char *infix, int *vals) {
             if(c-2 >= postfix)
                 b = popD(s);
             pushD(s, b-a);
+            // printf("ab-=%lf\n", topD(s));
         }
         if(*c == '*') {
             a=b=0;
@@ -179,7 +183,8 @@ void voidgetValue(char *infix, int *vals) {
                 a = popD(s);
             if(s->top)
                 b = popD(s);
-            pushD(s, a*b);
+            pushD(s, b*a);
+            // printf("ab*=%lf\n", topD(s));
         }
         if(*c == '/') {
             a=b=0;
@@ -187,7 +192,8 @@ void voidgetValue(char *infix, int *vals) {
                 a = popD(s);
             if(s->top)
                 b = popD(s);
-            pushD(s, a/b);
+            pushD(s, b/a);
+            // printf("ab/=%lf\n", topD(s));
         }
         if(*c == '^') {
             a=b=0;
@@ -196,25 +202,28 @@ void voidgetValue(char *infix, int *vals) {
             if(s->top)
                 b = popD(s);
             pushD(s, pow(b, a));
+            // printf("ab^=%lf\n", topD(s));
         }
     }
     if(s->top) {
-        printf("%.1lf\n", popD(s));
+        return popD(s);
     } else {
         printf("Error evaling\n");
+        return 0;
     }
 }
 
 int main() {
-    char *str  = (char*) malloc(sizeof(char) * MAX_CHAR);
+    char *in  = (char*) malloc(sizeof(char) * MAX_CHAR);
     char *post = (char*) malloc(sizeof(char) * MAX_CHAR);
     int  *vals = (int*) malloc(sizeof(int) * 255);
     // int skipLines = 1;
-    while(scanf("%s", str) != EOF) {
+    while(scanf("%s", in) != EOF) {
         // printf(skipLines-- > 0 ? "" : "");
-        voidintoPostfix(str, post);
-        printf("%s%s\n\n", (strcmp(post, "ERROR") ? "Postfix expression:" : "") , post);
-        voidgetValue(str, vals);
+        voidintoPostfix(in, post);
+        voidgetValue(in, vals);
+        // printf("%s%s\n\n", (strcmp(post, "ERROR") ? "Postfix expression:" : "") , post);
+        printf("eval:%.1lf\n", doubleeval(in, vals));
     }
     return 0;
 }
