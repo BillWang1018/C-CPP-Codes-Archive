@@ -30,7 +30,6 @@ void pushPolyNode(PolyNodePtr *node, int coe, int exp) {
     PolyNodePtr nptr = *node;
     PolyNodePtr newNode = newPolyNode(coe, exp);
     if(!*node) {
-        printf("d | create new head\n");
         *node = newNode;
         printf("d | %d %d | at-%p\n", (*node)->coe, (*node)->exp, *node);
         return;
@@ -39,11 +38,10 @@ void pushPolyNode(PolyNodePtr *node, int coe, int exp) {
     while(nptr->next) {
         nptr = nptr->next;
     }
-    printf("d | push node\n");
     nptr->next = newNode;
 }
 
-void readPoly(Poly* polys) {
+void readPoly(Poly* polys, int *idx) {
     char input[100];
 
     printf("readPoly():\n");
@@ -58,11 +56,14 @@ void readPoly(Poly* polys) {
         printf("Error - First char not alpha. - %c\n", ch); 
         return;
     }
-    int idx=0;
-    for(; idx<MAX_POLYS; idx++) {
-        if(polys->head == NULL) break;
-        if(polys->name == ch) {
+    for(*idx=0; *idx<MAX_POLYS; (*idx)++) {
+        if(polys[*idx].head == NULL) break;
+        if(polys[*idx].name == ch) {
             printf("Error - The name has been used - %c\n", ch);
+            return;
+        }
+        if(*idx == MAX_POLYS-1) {
+            printf("Error - Max capacity reached - %d\n", MAX_POLYS);
             return;
         }
     }
@@ -94,7 +95,7 @@ void readPoly(Poly* polys) {
                 break;
             }
             // found "x"
-            if(next == 'x') {
+            else if(next == 'x') {
                 // check if term is -x or +x or x (coe. is 1 or -1)
                 if( prev == '+' || prev == '=') {
                     coe = 1;
@@ -117,8 +118,10 @@ void readPoly(Poly* polys) {
             next = *iptr;
         }
         
-        prev = *iptr++;
-        next = *iptr;
+        if(next != '\0') {
+            prev = *iptr++;
+            next = *iptr;
+        }
 
         /* PROCESS exponent */
         // is constant
@@ -155,10 +158,10 @@ void readPoly(Poly* polys) {
         }
         
         // store data
-        printf("d | store data %d\n", idx);
-        pushPolyNode(&polys[idx].head, coe, exp);
+        printf("d | store data %d\n", *idx);
+        pushPolyNode(&polys[*idx].head, coe, exp);
     }
-    polys[idx].name = ch;
+    polys[*idx].name = ch;
 }
 
 void printPair(PolyNodePtr poly) {
@@ -179,9 +182,12 @@ int main() {
         polys[i].name = 0;
     }
 
-    readPoly(polys);
-    printf("char: %c\n", polys[0].name);
-    printPair(polys[0].head);
+    while (1) {
+        int idx;
+        readPoly(polys, &idx);
+        printf("char: %c\n", polys[idx].name);
+        printPair(polys[idx].head);
+    }
 
 
     return 0;
