@@ -212,7 +212,7 @@ void printPoly(Poly poly) {
             if(nptr == head) {
                 printf("");
             } else if (exp == 0) {
-                printf("1");
+                printf("+1");
             } else {
                 printf("+");
             }
