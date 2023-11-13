@@ -54,9 +54,6 @@ void pushPolyNode(PolyNodePtr *node, int coe, int exp) {
 }
 
 void readPoly(Poly* polys, int *idx, char *input) {
-
-    printf("readPoly(): %s\n", input);
-
     int prevExp=2147483647;
     char *iptr = input;
     char ch, prev, next, num[15], *nump;
@@ -64,7 +61,7 @@ void readPoly(Poly* polys, int *idx, char *input) {
     // check if first char. is alphabet 
     ch = *iptr;
     if(!isalpha(ch)) {
-        printf("Error - First char not alpha. - %c\n", ch); 
+        *idx = -1;
         return;
     }
     for(*idx=0; *idx<MAX_POLYS; (*idx)++) {
@@ -74,7 +71,7 @@ void readPoly(Poly* polys, int *idx, char *input) {
             break;
         }
         if(*idx == MAX_POLYS-1) {
-            printf("Error - Max capacity reached - %d\n", MAX_POLYS);
+            *idx = -2;
             return;
         }
     }
@@ -83,14 +80,13 @@ void readPoly(Poly* polys, int *idx, char *input) {
 
     // check if second char is equal sign
     if(next != '=') {
-        printf("Equal sign not detected - %c\n", *iptr);
+        *idx = -1;
         return;
     }
     prev = *iptr++;
     next = *iptr;
 
     if(next == '\0') {
-        printf("NULL expression!\n");
         *idx = -1;
         return;
     }
@@ -100,7 +96,6 @@ void readPoly(Poly* polys, int *idx, char *input) {
     int exp=0;
 
     while(next != '\0') {
-        // printf("b | %c\n", next);
         nump = num;
 
         /* PROCESS coefficient */
@@ -123,7 +118,7 @@ void readPoly(Poly* polys, int *idx, char *input) {
                     coe = -1;
                     break;
                 }
-                else {// coe. is numbers before x
+                else { // coe. is numbers before x
                     *nump = '\0';
                     coe = atoi(num);
                     break;
@@ -137,7 +132,7 @@ void readPoly(Poly* polys, int *idx, char *input) {
                 next = *iptr;
             }
             else {
-                printf("Illegel expression 1 - %c\n", next);
+                *idx = -1;
                 return;
             }
         }
@@ -170,7 +165,7 @@ void readPoly(Poly* polys, int *idx, char *input) {
                     next = *iptr;
                 }
                 else {
-                    printf("Illegel expression 2 - %c\n", next);
+                    *idx = -1;
                     return;
                 }
             }
@@ -181,12 +176,12 @@ void readPoly(Poly* polys, int *idx, char *input) {
         }
         // the input is illegal 
         else if(!isdigit(next)) {
-            printf("Illegel expression 3 - %c\n", next);
+            *idx = -1;
             return;
         }
 
         if(prevExp <= exp) {
-            printf("Exponient not decending\n");
+            *idx = -1;
             return;
         }
         prevExp = exp;
@@ -199,9 +194,8 @@ void readPoly(Poly* polys, int *idx, char *input) {
 
 void printPair(PolyNodePtr poly) {
     PolyNodePtr nptr = poly;
-    printf("HEAD | %p\n", nptr);
     while(nptr != NULL) {
-        printf("%d %d | next-%p\n", nptr->coe, nptr->exp, nptr->next);
+        printf("%d %d\n", nptr->coe, nptr->exp);
         nptr = nptr->next;
     }
 }
@@ -221,7 +215,14 @@ int main() {
 
         int idx;
         readPoly(polys, &idx, input);
-        printf("char: %c\n", polys[idx].name);
+        if(idx < 0) {
+            if(idx == -1)
+                printf("ERROR\n");
+            if(idx == -2)
+                printf("FULL\n");
+            continue;
+        }
+        printf("%c\n", polys[idx].name);
         printPair(polys[idx].head);
     }
     printf("quit\n");

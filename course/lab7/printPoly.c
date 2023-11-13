@@ -200,6 +200,54 @@ void printPair(PolyNodePtr poly) {
     }
 }
 
+void printPoly(Poly poly) {
+    int coe, exp;
+    PolyNodePtr head = poly.head;
+    PolyNodePtr nptr = head;
+    printf("%c=", poly.name);
+    while(nptr != NULL) {
+        coe = nptr->coe;
+        exp = nptr->exp;
+        if(coe == 1) {
+            if(nptr == head) {
+                printf("");
+            } else if (exp == 0) {
+                printf("1");
+            } else {
+                printf("+");
+            }
+        }
+        else if(coe == -1) {
+            if(exp == 0) {
+                printf("-1");
+            } else {
+                printf("-");
+            }
+        } 
+        else {
+            if(nptr == head) {
+                printf("%d", coe);
+            } else {
+                printf("%s%d", (coe > 0 ? "+" : ""), coe);
+                
+            }
+        }
+
+        if(exp == 0) {
+            printf("");
+        }
+        else if(exp == 1) {
+            printf("x");
+        } 
+        else {
+            printf("x^%d", exp);
+        }
+
+        nptr = nptr->next;
+    }
+    printf("\n");
+}
+
 
 int main() {
     int polyCount = 0;
@@ -209,21 +257,39 @@ int main() {
         polys[i].name = 0;
     }
     
+    int cmd;
     char input[100];
-    while (scanf("%s", input) != EOF) {
-        if(input[0] == '0') break;
-
-        int idx;
-        readPoly(polys, &idx, input);
-        if(idx < 0) {
-            if(idx == -1)
-                printf("ERROR\n");
-            if(idx == -2)
-                printf("FULL\n");
-            continue;
+    while (scanf("%d", &cmd)) {
+        if(cmd == 0) {
+            break;
         }
-        printf("%c\n", polys[idx].name);
-        printPair(polys[idx].head);
+        if(cmd == 1) {
+            int idx;
+            scanf("%s", input);
+            readPoly(polys, &idx, input);
+            if(idx < 0) {
+                if(idx == -1)
+                    printf("ERROR\n");
+                if(idx == -2)
+                    printf("FULL\n");
+                continue;
+            }
+            printf("%c\n", polys[idx].name);
+            printPair(polys[idx].head);
+        }
+        if(cmd == 2) {
+            scanf("%s", input);
+            for(int i=0; i<MAX_POLYS; i++) {
+                if(polys[i].name == input[0]) {
+                    printPoly(polys[i]);
+                    break;
+                }
+                if(i == MAX_POLYS-1) {
+                    printf("NO POLY\n");
+                }
+            }
+        }
+
     }
     printf("quit\n");
 
