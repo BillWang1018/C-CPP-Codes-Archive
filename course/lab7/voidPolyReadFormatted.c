@@ -61,7 +61,6 @@ void readPoly(Poly* polys, int *idx, char *input) {
     // check if first char. is alphabet 
     ch = *iptr;
     if(!isalpha(ch)) {
-        printf("Error - First char not alpha. - %c\n", ch); 
         *idx = -1;
         return;
     }
@@ -72,8 +71,7 @@ void readPoly(Poly* polys, int *idx, char *input) {
             break;
         }
         if(*idx == MAX_POLYS-1) {
-            printf("FULL\n");
-            *idx = -1;
+            *idx = -2;
             return;
         }
     }
@@ -82,7 +80,6 @@ void readPoly(Poly* polys, int *idx, char *input) {
 
     // check if second char is equal sign
     if(next != '=') {
-        printf("Equal sign not detected - %c\n", *iptr);
         *idx = -1;
         return;
     }
@@ -90,7 +87,6 @@ void readPoly(Poly* polys, int *idx, char *input) {
     next = *iptr;
 
     if(next == '\0') {
-        printf("NULL expression!\n");
         *idx = -1;
         return;
     }
@@ -100,7 +96,6 @@ void readPoly(Poly* polys, int *idx, char *input) {
     int exp=0;
 
     while(next != '\0') {
-        // printf("b | %c\n", next);
         nump = num;
 
         /* PROCESS coefficient */
@@ -123,7 +118,7 @@ void readPoly(Poly* polys, int *idx, char *input) {
                     coe = -1;
                     break;
                 }
-                else {// coe. is numbers before x
+                else { // coe. is numbers before x
                     *nump = '\0';
                     coe = atoi(num);
                     break;
@@ -137,7 +132,6 @@ void readPoly(Poly* polys, int *idx, char *input) {
                 next = *iptr;
             }
             else {
-                printf("Illegel expression 1 - %c\n", next);
                 *idx = -1;
                 return;
             }
@@ -171,7 +165,6 @@ void readPoly(Poly* polys, int *idx, char *input) {
                     next = *iptr;
                 }
                 else {
-                    printf("Illegel expression 2 - %c\n", next);
                     *idx = -1;
                     return;
                 }
@@ -183,13 +176,11 @@ void readPoly(Poly* polys, int *idx, char *input) {
         }
         // the input is illegal 
         else if(!isdigit(next)) {
-            printf("Illegel expression 3 - %c\n", next);
             *idx = -1;
             return;
         }
 
         if(prevExp <= exp) {
-            printf("ERROR\n");
             *idx = -1;
             return;
         }
@@ -224,7 +215,13 @@ int main() {
 
         int idx;
         readPoly(polys, &idx, input);
-        if(idx < 0) continue;
+        if(idx < 0) {
+            if(idx == -1)
+                printf("ERROR\n");
+            if(idx == -2)
+                printf("FULL\n");
+            continue;
+        }
         printf("%c\n", polys[idx].name);
         printPair(polys[idx].head);
     }
