@@ -132,9 +132,16 @@ void readPoly(Poly* polys, int *idx, char *input) {
                 next = *iptr;
             }
             else {
+                clearPoly(&polys[*idx].head);
                 *idx = -1;
                 return;
             }
+        }
+
+        if(coe == 0) { // can't be 0
+            clearPoly(&polys[*idx].head);
+            *idx = -1;
+            return;
         }
         
         if(next != '\0') {
@@ -165,6 +172,7 @@ void readPoly(Poly* polys, int *idx, char *input) {
                     next = *iptr;
                 }
                 else {
+                    clearPoly(&polys[*idx].head);
                     *idx = -1;
                     return;
                 }
@@ -176,17 +184,18 @@ void readPoly(Poly* polys, int *idx, char *input) {
         }
         // the input is illegal 
         else if(!isdigit(next)) {
+            clearPoly(&polys[*idx].head);
             *idx = -1;
             return;
         }
 
         if(prevExp <= exp) {
+            clearPoly(&polys[*idx].head);
             *idx = -1;
             return;
         }
         prevExp = exp;
         // store data
-        // printf("d | store data %d\n", *idx);
         pushPolyNode(&polys[*idx].head, coe, exp);
     }
     polys[*idx].name = ch;

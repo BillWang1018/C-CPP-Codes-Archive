@@ -137,6 +137,11 @@ void readPoly(Poly* polys, int *idx, char *input) {
             }
         }
         
+        if(coe == 0) { // can't be 0
+            *idx = -1;
+            return;
+        }
+        
         if(next != '\0') {
             prev = *iptr++;
             next = *iptr;
