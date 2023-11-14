@@ -39,6 +39,7 @@ PolyNodePtr clearPoly(PolyNodePtr *node) {
 }
 
 void pushPolyNode(PolyNodePtr *node, int coe, int exp) {
+    if(!coe) return;
     PolyNodePtr nptr = *node;
     PolyNodePtr newNode = newPolyNode(coe, exp);
     if(!*node) {
@@ -279,15 +280,15 @@ PolyNodePtr addPoly(PolyNodePtr polyA, PolyNodePtr polyB) {
             continue;
         }
         
-        if(pa->exp > pb->exp) {
+        if     (pa->exp > pb->exp) {
             pushPolyNode(&sum, pa->coe, pa->exp);
             pa = pa->next;
         }
-        if(pb->exp > pa->exp) {
+        else if(pb->exp > pa->exp) {
             pushPolyNode(&sum, pb->coe, pb->exp);
             pb = pb->next;
         }
-        if(pa->exp == pb->exp) {
+        else if(pa->exp == pb->exp) {
             pushPolyNode(&sum, pa->coe + pb->coe, pa->exp);
             pa = pa->next;
             pb = pb->next;
@@ -439,4 +440,3 @@ int main() {
 
     return 0;
 }
- 
