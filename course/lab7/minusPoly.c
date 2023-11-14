@@ -353,7 +353,7 @@ void addPolyExp(Poly* polys, int *idx, char *input) {
         ca = ch;
         cb = *++iptr;
         ch = 0;
-        fch = -2; // don't seed
+        fch = -2; // don't seek
     } else if(*iptr == '=') {
         ca = *++iptr;
         if(*++iptr != '+') {
@@ -366,9 +366,7 @@ void addPolyExp(Poly* polys, int *idx, char *input) {
         return;
     }
 
-    // printf("char: %c %c %c\n", ch, ca, cb);
     for(*idx=0; *idx<MAX_POLYS; (*idx)++) {
-        // printf("find: %c\n", polys[*idx].name);
         if(polys[*idx].head == NULL) {
             if(fch == -1)
                 fch = *idx;
@@ -432,7 +430,7 @@ void minusPolyExp(Poly* polys, int *idx, char *input) {
         ca = ch;
         cb = *++iptr;
         ch = 0;
-        fch = -2; // don't seed
+        fch = -2; // don't seek
     } else if(*iptr == '=') {
         ca = *++iptr;
         if(*++iptr != '-') {
@@ -445,9 +443,7 @@ void minusPolyExp(Poly* polys, int *idx, char *input) {
         return;
     }
 
-    // printf("char: %c %c %c\n", ch, ca, cb);
     for(*idx=0; *idx<MAX_POLYS; (*idx)++) {
-        // printf("find: %c\n", polys[*idx].name);
         if(polys[*idx].head == NULL) {
             if(fch == -1)
                 fch = *idx;
