@@ -242,7 +242,7 @@ Term *fastTranspose() {
     if(ans[0].val > INIT_SIZE)
         appendMatrix(&ans);
     
-    int nzeroRow[MAX_COL+1] = {0}, startingPos[MAX_COL+1] = {0};
+    int nzeroRow[MAX_COL*MAX_COL+1] = {0}, startingPos[MAX_COL*MAX_COL+1] = {0};
 
     for(int i=1; i <= mats[a][0].val; i++) {
         nzeroRow[mats[a][i].col]++;
