@@ -389,7 +389,7 @@ void addEqsIO(EqPtr *eqs, char *input) {
         }
         if(ed->name != des) { // not found, push a new node
             pushEq(eqs, cnt, des, sum);
-            printf("%c=", *input);
+            printf("%c=", des);
             printEq(tmp->head);
         }
     }
