@@ -4,8 +4,6 @@
 #include <ctype.h>
 #include <math.h>
 
-#define MAX_POLYS 10
-
 typedef struct EqNode {
     int coe;
     char var;

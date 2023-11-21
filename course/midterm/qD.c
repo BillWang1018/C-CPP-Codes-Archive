@@ -4,8 +4,6 @@
 #include <ctype.h>
 #include <math.h>
 
-#define MAX_POLYS 10
-
 typedef struct EqNode {
     int coe;
     char var;
@@ -374,11 +372,14 @@ void addEqsIO(EqPtr *eqs, char *input) {
         }
         //check if all are found
         if(!ea || !eb) {// any of a or b is null
-            if(!ea)
+            if(!ea) {
                 printf("NO EQUATION %c\n", ca);
-            if(!eb)
-                printf("NO EQUATION %c\n", cb);
-            return;
+                return;
+            }
+            if(!eb) {
+                printf("NO EQUATION %c\n", cb); 
+                return;
+            }
         }
         EqNodePtr sum = addEqs(ea->head, eb->head), tmpsum;
         tmpsum = sum;
@@ -406,11 +407,14 @@ void addEqsIO(EqPtr *eqs, char *input) {
         }
         //check if all are found
         if(!ea || !eb) {// any of a or b is null
-            if(!ea)
+            if(!ea) {
                 printf("NO EQUATION %c\n", ca);
-            if(!eb)
+                return;
+            }
+            if(!eb) {
                 printf("NO EQUATION %c\n", cb);
-            return;
+                return;
+            }
         }
         EqNodePtr sum = addEqs(ea->head, eb->head);
         printf("%c+%c=", ca, cb);

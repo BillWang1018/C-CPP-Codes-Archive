@@ -4,6 +4,8 @@
 #include <ctype.h>
 #include <math.h>
 
+#define MAX_POLYS 10
+
 typedef struct EqNode {
     int coe;
     char var;
@@ -284,6 +286,257 @@ void printEq(EqNodePtr head) {
     printf("\n");
 }
 
+void printAllEqs(EqPtr eqs) {
+    if(eqs == NULL) {
+        printf("NO EQUATION\n");
+        return;
+    }
+    EqPtr tmp = eqs;
+    while(tmp) {
+        printf("%c=", tmp->name);
+        printEq(tmp->head);
+        tmp = tmp->next;
+    }
+}
+
+EqNodePtr addEqs(EqNodePtr eqA, EqNodePtr eqB) {
+    EqNodePtr a = eqA, b = eqB;
+    EqNodePtr sum = NULL;
+    while(a || b) {
+        if(a && !b) { // only A
+            pushEqNode(&sum, a->coe, a->var, a->exp);
+            a = a->next;
+            continue;
+        }
+        if(!a && b) { // only B
+            pushEqNode(&sum, b->coe, b->var, b->exp);
+            b = b->next;
+            continue;
+        }
+
+        if(a->exp > b->exp) {
+            pushEqNode(&sum, a->coe, a->var, a->exp);
+            a = a->next;
+            continue;
+        }
+        if(b->exp > a->exp) {
+            pushEqNode(&sum, b->coe, b->var, b->exp);
+            b = b->next;
+            continue;
+        }
+        if(a->exp == b->exp) {
+            if(a->var == b->var) {
+                pushEqNode(&sum, a->coe + b->coe, a->var, a->exp);
+                a = a->next;
+                b = b->next;
+            } 
+            else if(a->var < b->var) {
+                pushEqNode(&sum, a->coe, a->var, a->exp);
+                a = a->next;
+            }
+            else if(b->var < a->var) {
+                pushEqNode(&sum, b->coe, b->var, b->exp);
+                b = b->next;
+            }
+        }
+        
+    }
+    return sum;
+}
+
+void addEqsIO(EqPtr *eqs, char *input) {
+    int mode;
+    if(input[1] == '=' && input[3] == '+')
+        mode = 0;
+    else if(input[1] == '+')
+        mode = 1;
+    else {
+        printf("addIO ERR\n");
+        return;
+    }
+
+    char des, ca, cb;
+    EqPtr ed, ea, eb, tmp;
+    ed = ea = eb = NULL;
+    tmp = *eqs;
+    if(mode == 0) {
+        des = input[0];
+        ca  = input[2];
+        cb  = input[4];
+        while(tmp) {
+            if(tmp->name == des)
+                ed = tmp;
+            if(tmp->name == ca)
+                ea = tmp;
+            if(tmp->name == cb)
+                eb = tmp;
+            tmp = tmp->next;
+        }
+        //check if all are found
+        if(!ea || !eb) {// any of a or b is null
+            if(!ea)
+                printf("NO EQUATION %c\n", ca);
+            if(!eb)
+                printf("NO EQUATION %c\n", cb);
+            return;
+        }
+        EqNodePtr sum = addEqs(ea->head, eb->head), tmpsum;
+        tmpsum = sum;
+        int cnt=0;
+        while(tmpsum) {
+            cnt++;
+            tmpsum = tmpsum->next;
+        }
+        if(ed->name != des) { // not found, push a new node
+            pushEq(eqs, cnt, des, sum);
+            printf("%c=", *input);
+            printEq(tmp->head);
+        }
+    }
+    if(mode == 1) {
+        des = 0;
+        ca  = input[0];
+        cb  = input[2];
+        while(tmp) {
+            if(tmp->name == ca)
+                ea = tmp;
+            if(tmp->name == cb)
+                eb = tmp;
+            tmp = tmp->next;
+        }
+        //check if all are found
+        if(!ea || !eb) {// any of a or b is null
+            if(!ea)
+                printf("NO EQUATION %c\n", ca);
+            if(!eb)
+                printf("NO EQUATION %c\n", cb);
+            return;
+        }
+        EqNodePtr sum = addEqs(ea->head, eb->head);
+        printf("%c+%c=", ca, cb);
+        printEq(sum);
+    }
+}
+
+EqNodePtr subEqs(EqNodePtr eqA, EqNodePtr eqB) {
+    EqNodePtr a = eqA, b = eqB;
+    EqNodePtr sum = NULL;
+    while(a || b) {
+        if(a && !b) { // only A
+            pushEqNode(&sum, a->coe, a->var, a->exp);
+            a = a->next;
+            continue;
+        }
+        if(!a && b) { // only B
+            pushEqNode(&sum, -b->coe, b->var, b->exp);
+            b = b->next;
+            continue;
+        }
+
+        if(a->exp > b->exp) {
+            pushEqNode(&sum, a->coe, a->var, a->exp);
+            a = a->next;
+            continue;
+        }
+        if(b->exp > a->exp) {
+            pushEqNode(&sum, -b->coe, b->var, b->exp);
+            b = b->next;
+            continue;
+        }
+        if(a->exp == b->exp) {
+            if(a->var == b->var) {
+                pushEqNode(&sum, a->coe - b->coe, a->var, a->exp);
+                a = a->next;
+                b = b->next;
+            } 
+            else if(a->var < b->var) {
+                pushEqNode(&sum, a->coe, a->var, a->exp);
+                a = a->next;
+            }
+            else if(b->var < a->var) {
+                pushEqNode(&sum, -b->coe, b->var, b->exp);
+                b = b->next;
+            }
+        }
+        
+    }
+    return sum;
+}
+
+void subEqsIO(EqPtr *eqs, char *input) {
+    int mode;
+    if(input[1] == '=' && input[3] == '-')
+        mode = 0;
+    else if(input[1] == '-')
+        mode = 1;
+    else {
+        printf("subIO ERR\n");
+        return;
+    }
+
+    char des, ca, cb;
+    EqPtr ed, ea, eb, tmp;
+    ed = ea = eb = NULL;
+    tmp = *eqs;
+    if(mode == 0) {
+        des = input[0];
+        ca  = input[2];
+        cb  = input[4];
+        while(tmp) {
+            if(tmp->name == des)
+                ed = tmp;
+            if(tmp->name == ca)
+                ea = tmp;
+            if(tmp->name == cb)
+                eb = tmp;
+            tmp = tmp->next;
+        }
+        //check if all are found
+        if(!ea || !eb) {// any of a or b is null
+            if(!ea)
+                printf("NO EQUATION %c\n", ca);
+            if(!eb)
+                printf("NO EQUATION %c\n", cb);
+            return;
+        }
+        EqNodePtr sum = subEqs(ea->head, eb->head), tmpsum;
+        tmpsum = sum;
+        int cnt=0;
+        while(tmpsum) {
+            cnt++;
+            tmpsum = tmpsum->next;
+        }
+        if(ed->name != des) { // not found, push a new node
+            pushEq(eqs, cnt, des, sum);
+            printf("%c=", *input);
+            printEq(tmp->head);
+        }
+    }
+    if(mode == 1) {
+        des = 0;
+        ca  = input[0];
+        cb  = input[2];
+        while(tmp) {
+            if(tmp->name == ca)
+                ea = tmp;
+            if(tmp->name == cb)
+                eb = tmp;
+            tmp = tmp->next;
+        }
+        //check if all are found
+        if(!ea || !eb) {// any of a or b is null
+            if(!ea)
+                printf("NO EQUATION %c\n", ca);
+            if(!eb)
+                printf("NO EQUATION %c\n", cb);
+            return;
+        }
+        EqNodePtr sum = subEqs(ea->head, eb->head);
+        printf("%c-%c=", ca, cb);
+        printEq(sum);
+    }
+}
+
 int main() {
     int eqCount = 0;
     EqPtr eqs = (EqPtr) malloc(sizeof(Eq)), tmp;
@@ -323,7 +576,17 @@ int main() {
                 printEq(tmp->head);
             }
         }
-
+        if(cmd == 3) {
+            printAllEqs(eqs);
+        }
+        if(cmd == 4) {
+            scanf("%s", input);
+            addEqsIO(&eqs, input);
+        }
+        if(cmd == 5) {
+            scanf("%s", input);
+            subEqsIO(&eqs, input);
+        }
     }
     printf("quit\n");
 
