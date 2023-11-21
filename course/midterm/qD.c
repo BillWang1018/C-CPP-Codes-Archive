@@ -388,10 +388,10 @@ void addEqsIO(EqPtr *eqs, char *input) {
             cnt++;
             tmpsum = tmpsum->next;
         }
-        if(ed->name != des) { // not found, push a new node
+        if(ed == NULL) { // not found, push a new node
             pushEq(eqs, cnt, des, sum);
-            printf("%c=", *input);
-            printEq(tmp->head);
+            printf("%c=", des);
+            printEq(sum);
         }
     }
     if(mode == 1) {
