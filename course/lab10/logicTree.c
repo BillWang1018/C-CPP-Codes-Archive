@@ -68,20 +68,18 @@ char topChar() {
 Tree* makeTree(char* str) {
     int p[255] = {0};
     p['('] = 1;
-    p['^'] = p['v'] = p['-'] = 2;
+    p['^'] = p['v'] = 2;
+    p['-'] = 3;
     lastsChar = lastsTree = 0;
     char op;
 
     for (char* c = str; *c != '\0'; c++) {
-        printf("loop *c: %c\n", *c);
         // is variable
         if (isalpha(*c) && !p[*c]) {
             pushTree(newNode(*c));
-            printf("pushT: %c\n", topTree()->ch);
         } // is (
         else if (*c == '(') {
             pushChar(*c);
-            printf("pushC: %c\n", topChar());
         } // is ) 
         else if (*c == ')') {
             while (op = popChar()) {
@@ -90,7 +88,6 @@ Tree* makeTree(char* str) {
                 new->r = popTree();
                 new->l = popTree();
                 pushTree(new);
-                printf("pushT: %c\n", topTree()->ch);
             }
         } // is operator 
         else {
@@ -110,13 +107,11 @@ Tree* makeTree(char* str) {
                 new->r = popTree();
                 new->l = popTree();
                 pushTree(new);
-                printf("pushT: %c\n", topTree()->ch);
                 popChar();
             }
 
             if(unary) pushTree(NULL);
             pushChar(*c);
-            printf("pushC: %c\n", topChar());
         }
     }
 
@@ -128,7 +123,6 @@ Tree* makeTree(char* str) {
         pushTree(new);
     }
     
-    printf("return: %c\n", topTree()->ch);
     return topTree();
 }
 
@@ -169,15 +163,16 @@ void printTreePostOrder(Tree* head) {
 }
 
 int main() {
-    char test0[] = "-(x^y)v(x^z)";
-    char test1[] = "x^yvz";
-    char test2[] = "x^(yvz)";
-    Tree* tree = makeTree(test0);
-    printf("\nLevel-order:\n");
-    printTreeLevelOrder(tree);
-    printf("\nPre-order:\n");
-    printTreePreOrder(tree);
-    printf("\nPost-order:\n");
-    printTreePostOrder(tree);
+    char str[MAX_CHAR];
+    while(scanf("%s", str)) {
+        
+        if(*str == '0') break;
+        Tree* tree = makeTree(str);
+        printTreeLevelOrder(tree);
+        // printTreePreOrder(tree);
+        // printTreePostOrder(tree);
+        printf("\n");
+    }
+    printf("quit");
     return 0;
 }
