@@ -97,10 +97,12 @@ void pushHeap(Element e) {
 
 
 Element popHeap(Element *heap, int *size) {
+    Element top = {-1};
     if (!*size) {
-        printf("Heap is empty\n");
+        printf("No Data\n");
+        return top;
     }
-    Element top = heap[0];
+    top = heap[0];
     Element e = heap[--*size];
     int i=1;
     while (i < *size) {
@@ -135,8 +137,6 @@ void printHeapData(int size) {
     for (int i=0; i<size; i++) {
         printData(sorted[i]);
     }
-    
-    
 }
 
 void makeHeap() {
@@ -160,7 +160,7 @@ int main() {
     char *str = (char*) malloc( sizeof(char) * MAX_ELEMENTS );
     while(fgets(str, MAX_ELEMENTS, stdin) != NULL) {
         switch (str[0]) {
-        case '1': ;
+        case '1':
             inputBuffer();
             break;
 
@@ -172,9 +172,15 @@ int main() {
             makeHeap();
             break;
 
-        // case '4':
-        //     printHeapData(hpSize);
-        //     break;
+        case '4':
+            printHeapData(hpSize);
+            break;
+
+        case '5': ;
+            Element e = popHeap(heap, &hpSize);
+            if (e.priority != -1) 
+                printData(e);
+            break;
 
         case '0':
             printf("quit\n");
