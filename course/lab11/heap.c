@@ -16,7 +16,6 @@ typedef struct Element{
 Element buffer[MAX_ELEMENTS], heap[MAX_ELEMENTS];
 bool contains[MAX_ELEMENTS] = {0};
 int keyRecords[MAX_ELEMENTS];
-int heapRecords[MAX_ELEMENTS];
 int bfSize=0, hpSize=0;
 
 void inputBuffer() {
@@ -90,11 +89,9 @@ void pushHeap(Element e) {
     int i = hpSize++;
     while ((toPIndex(i)>=0) && (e.priority > heap[toPIndex(i)].priority)) {
         heap[i] = heap[toPIndex(i)];
-        heapRecords[i] = heapRecords[toPIndex(i)];
         i = toPIndex(i);
     }
     heap[i] = e;
-    heapRecords[i] = e.priority;
 
 }
 
@@ -123,18 +120,30 @@ void printHeapData(int size) {
         printf("No Data\n");
         return;
     }
-    Element tmp[100];
+    Element tmp[MAX_ELEMENTS], sorted[MAX_ELEMENTS];
+    char output[MAX_ELEMENTS * size];
+
     for (int i=0; i<size; i++) {
-        printf("%d%s", heapRecords[i], (i==size-1) ? "\n" : " ");
         tmp[i] = heap[i];
     }
-    while(size) {
-        printData(popHeap(tmp, &size));
+    for (int i=0, s=size; s; i++) {
+        sorted[i] = popHeap(tmp, &s);
     }
+    for (int i=0; i<size; i++) {
+        printf("%d%s", sorted[i].priority, (i==size-1) ? "\n" : " ");
+    }
+    for (int i=0; i<size; i++) {
+        printData(sorted[i]);
+    }
+    
+    
 }
 
 void makeHeap() {
-    if (bfSize) hpSize = 0;
+    if (bfSize) {
+        hpSize = 0;
+        memset(contains, 0, sizeof(contains));
+    }
     else {
         printHeapData(0); 
         return;
