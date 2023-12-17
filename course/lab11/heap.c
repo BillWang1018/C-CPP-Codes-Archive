@@ -18,12 +18,7 @@ bool contains[MAX_ELEMENTS] = {0};
 int keyRecords[MAX_ELEMENTS];
 int bfSize=0, hpSize=0;
 
-void inputBuffer() {
-    if (bfSize >= MAX_ELEMENTS) {
-        printf("Buffer full\n");
-        return;
-    }
-
+Element inputElement() {
     Element e;
     scanf("%d%*c", &e.priority);
     fgets(e.who, MAX_ELEMENTS, stdin);
@@ -34,6 +29,17 @@ void inputBuffer() {
     e.when[strcspn(e.when, "\n")]=0;
     fgets(e.where, MAX_ELEMENTS, stdin);
     e.where[strcspn(e.where, "\n")]=0;
+
+    return e;
+}
+
+void inputBuffer() {
+    if (bfSize >= MAX_ELEMENTS) {
+        printf("Buffer full\n");
+        return;
+    }
+
+    Element e = inputElement();
 
     while (contains[e.priority]) {
         printf("KEY EXIST: ");
@@ -156,6 +162,12 @@ void makeHeap() {
     printHeapData(hpSize);
 }
 
+void inputHeap() {
+    Element e = inputElement();
+    pushHeap(e);
+    printHeapData(hpSize);
+}
+
 int main() {
     char *str = (char*) malloc( sizeof(char) * MAX_ELEMENTS );
     while(fgets(str, MAX_ELEMENTS, stdin) != NULL) {
@@ -180,6 +192,10 @@ int main() {
             Element e = popHeap(heap, &hpSize);
             if (e.priority != -1) 
                 printData(e);
+            break;
+
+        case '6': ;
+            inputHeap();
             break;
 
         case '0':
