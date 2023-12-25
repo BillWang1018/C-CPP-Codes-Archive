@@ -25,7 +25,7 @@ void inputTree(int *tree, int *size) {
             tmp = strtok(NULL, " \n");
         }
     }
-    printf("MAX NODES REACHED");
+    printf("MAX NODES REACHED\n");
 }
 
 void printTree(int *tree, int size) {
@@ -73,14 +73,3 @@ int main() {
 
     return 0;
 }
-
-/*
-14
-12 7
-10 8 6 x 
-
-0         < 1 (1-1+i)
-1 2       < 2 (2-1+i)
-3 4 5 6   < 4 (4-1+i)
-...       < n (n-1+i)
-*/
