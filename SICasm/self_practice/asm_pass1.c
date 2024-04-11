@@ -14,14 +14,14 @@
 #define HASHSIZE 101
 
 /* nlist for hashmap */
-typedef struct { /* table entry: */
+typedef struct nlist{ /* table entry: */
     struct nlist *next; /* next entry in chain */
     char *name; /* defined name */
     unsigned  loc; /* location */
 }  nlist;
 
 /* line for a line of asm command*/
-typedef struct
+typedef struct LINE
 {
 	char		symbol[LEN_SYMBOL];
 	char		op[LEN_SYMBOL];
@@ -33,7 +33,7 @@ typedef struct
     unsigned    memloc;
 } LINE;
 
-typedef struct {
+typedef struct record{
     char *name;
     struct record *next;
 } record;
@@ -292,11 +292,15 @@ int process_line(LINE *line) {
         if (*(line->symbol) != '\0')
             install(line->symbol, pc);
 
-        if (line->fmt != 0)
+        if (line->fmt != 0) 
             for (int i=line->fmt; i!=0; i>>=1)
                 pc++;
-        else if (line->code == OP_BYTE)
-            pc += 1;
+        else if (line->code == OP_BYTE) {
+			if 		(line->operand1[0] == 'C') 
+				pc += (strlen(line->operand1)-3); 
+			else if (line->operand1[0] == 'X')
+				pc += (strlen(line->operand1)-3)/2;
+		}
         else if (line->code == OP_WORD)
             pc += 3;
         else if (line->code == OP_RESB)
