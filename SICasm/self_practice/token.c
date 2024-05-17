@@ -15,7 +15,7 @@ int ASM_token(char *buf);	 /* Get a token from the file */
 							 /* Return the length of the token. Return EOF if end of file reached. */
 
 /* Private variable and functions */
-FILE *ASM_fp;
+FILE *ASM_fp, *ASM_ofp;
 int ASM_buf;                                /*ASM_buf, ASM_flag is for one symble look ahead*/
 bool ASM_flag = false;                       /*use ASM_buf first if ASM_flag is true*/
 char DELIMITER[] = " ,\t\r\n";
@@ -31,8 +31,17 @@ FILE *ASM_open(char *fname) {
         return NULL;
 }
 
+FILE *ASM_out(char *fname) {
+    ASM_ofp = fopen(strcat(fname, ".obj"), "w");
+    if (ASM_ofp)
+        return ASM_ofp;
+    else 
+        return NULL;
+}
+
 void ASM_close() {
     fclose(ASM_fp);
+    fclose(ASM_ofp);
 }
 
 int ASM_getc() {

@@ -33,14 +33,20 @@ typedef struct LINE
     unsigned    memloc;
 } LINE;
 
-typedef struct record{
+typedef struct sym_record {
     char *name;
-    struct record *next;
-} record;
+    struct sym_record *next;
+} sym_record;
+
+typedef struct line_record {
+	LINE line;
+	struct line_record *next;
+} line_record;
 
 nlist *symtab[HASHSIZE]; /* pointer table */
-record *record_head, **record_indir;
-unsigned pc=0;
+sym_record *records_head, **records_indir;
+line_record *lines_head, **lines_tail;
+unsigned pc=0, saddr=0;
 
 
 /* return LINE_EOF, LINE_COMMENT, LINE_ERROR, LINE_CORRECT and Instruction information in *line*/
@@ -87,14 +93,14 @@ nlist *install(char *name, int loc) {
         hashval = hash(name);
         np->next = symtab[hashval];
         symtab[hashval] = np;
-        record_indir = &record_head;
-        record *new = (record *)malloc(sizeof(record));
+        records_indir = &records_head;
+        sym_record *new = (sym_record *)malloc(sizeof(sym_record));
         new->name = strdup(name), new->next = NULL;
-        while (*record_indir) 
-            record_indir = &((*record_indir)->next);
-        *record_indir = new;
+        while (*records_indir) 
+            records_indir = &((*records_indir)->next);
+        *records_indir = new;
     } else /* already there */
-        free((void *) np->loc); /*free previous loc */
+        free((void *) np->loc); /* free previous loc */
     np->loc = loc;
     return np;
 }
@@ -103,6 +109,7 @@ int process_line(LINE *line) {
     char buf[LEN_SYMBOL];
     int c, state, ret;
     Instruction *op;
+	lines_tail = &(lines_head);
 
     c = ASM_token(buf);
 	if(c == EOF)
@@ -267,7 +274,7 @@ int process_line(LINE *line) {
 							}
 							else
 							{
-								printf("Operand2 exists only if format 2  is used\n");
+								printf("Operand2 exists only if format 2 is used\n");
 								ret = LINE_ERROR;
 								state = 7;		/* skip following tokens in the line */
 							}
@@ -283,7 +290,7 @@ int process_line(LINE *line) {
 				c = ASM_token(buf);  /* get the next token */
 		}
         if (line->code == OP_START) {
-            pc = atoi(line->operand1);
+            pc = saddr = atoi(line->operand1);
             line->memloc = pc;
         }
         if (line->fmt != 0 || (line->code >= OP_BYTE && line->code <= OP_RESW))
@@ -299,7 +306,7 @@ int process_line(LINE *line) {
 			if 		(line->operand1[0] == 'C') 
 				pc += (strlen(line->operand1)-3); 
 			else if (line->operand1[0] == 'X')
-				pc += (strlen(line->operand1)-3)/2;
+				pc += (strlen(line->operand1)-2)/2;
 		}
         else if (line->code == OP_WORD)
             pc += 3;
@@ -307,6 +314,11 @@ int process_line(LINE *line) {
             pc += atoi(line->operand1);
         else if (line->code == OP_RESW)
             pc += atoi(line->operand1) * 3;
+		
+		// save line for pass 2
+		*lines_tail = (LINE *)malloc(sizeof(LINE));
+		memcpy(*lines_tail, &line, sizeof(LINE));
+		*lines_tail = &((*lines_tail)->next);
 
 		return ret;
 	}

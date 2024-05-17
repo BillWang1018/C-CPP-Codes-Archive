@@ -1,4 +1,4 @@
-#include "asm_pass1.c"
+#include "asm_pass2.c"
 
 int main(int argc, char *argv[])
 {
@@ -16,6 +16,10 @@ int main(int argc, char *argv[])
 			printf("File not found!!\n");
 		else
 		{
+			if (argc >= 3)
+				ASM_out(argv[3]);
+			else
+				ASM_out("asm_out");
 			printf("LC  : MEMLOC | %12s %12s %12s \n", "SYMBOL", "INSTRUCTION", "OPERAND");
 			printf("-----------------------------------------------------\n");
 			for(line_count = 1 ; (c = process_line(&line)) != LINE_EOF; line_count++)
@@ -40,10 +44,10 @@ int main(int argc, char *argv[])
             printf(".\n.\n");
             printf("Program length = %06X\n.\n.\n", pc);
 			printf("----SYM_NAME|----MEMLOC----\n\n");
-            record_indir = &record_head;
-            while(*record_indir) {
-                printf("%12s:\t %06X\n", (*record_indir)->name, lookup((*record_indir)->name)->loc);
-                record_indir = &((*record_indir)->next);
+            records_indir = &records_head;
+            while(*records_indir) {
+                printf("%12s:\t %06X\n", (*records_indir)->name, lookup((*records_indir)->name)->loc);
+                records_indir = &((*records_indir)->next);
 			}
 			ASM_close();
 		}
