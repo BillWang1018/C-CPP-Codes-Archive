@@ -41,7 +41,7 @@ int main() {
         sort(arr.begin(), arr.end());
         auto end = chrono::high_resolution_clock::now();
         auto duration = chrono::duration_cast<chrono::nanoseconds>(end - start);
-        cout << "Bubble sort cost: " << duration.count() << " 10^-9 (sec)" << endl;
+        cout << "std::sort() cost: " << duration.count() << " 10^-9 (sec)" << endl;
 
         // print the sorted array
         cout << "Sorted array < [10]: ";
