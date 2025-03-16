@@ -1,232 +1,220 @@
 #include <cstdio>
+#include <cstring>
 
 using namespace std;
 
 // use the normal multiplication under n x n matrix
-#define useStrassenThreshold 1
+#define useStrassenThreshold 2
 #define max(a,b) ((a) > (b) ? (a) : (b))
 typedef long long int ll;
 
+void squareMatrixSum(const ll *A, const ll *B, ll *C, int n) {
+    memset(C, 0, n * n * sizeof(ll)); // initialize matrix C with 0
 
-ll** squareMatrixSum(ll **A, ll **B, int n) {
-    ll **C = new ll*[n];
-    for(int i=0; i<n; i++) {
-        C[i] = new ll[n];
+    for (int i = 0; i < n * n; i++) {
+        C[i] = A[i] + B[i];
     }
-    for(int i=0; i<n; i++) {
-        for(int j=0; j<n; j++) {
-            C[i][j] = A[i][j] + B[i][j];
-        }
-    }
-    return C;
 }
 
-ll** squareMatrixSub(ll **A, ll **B, int n) {
-    ll **C = new ll*[n];
-    for(int i=0; i<n; i++) {
-        C[i] = new ll[n];
+void squareMatrixSub(const ll *A, const ll *B, ll *C, int n) {
+    memset(C, 0, n * n * sizeof(ll)); // initialize matrix C with 0
+
+    for (int i = 0; i < n * n; i++) {
+        C[i] = A[i] - B[i];
     }
-    for(int i=0; i<n; i++) {
-        for(int j=0; j<n; j++) {
-            C[i][j] = A[i][j] - B[i][j];
-        }
-    }
-    return C;
 }
 
-ll** squareMatrixMul(ll **A, ll **B, int n) {
-    ll **C = new ll*[n];
-    for(int i=0; i<n; i++) {
-        C[i] = new ll[n];
-    }
-    for(int i=0; i<n; i++) {
-        for(int j=0; j<n; j++) {
-            C[i][j] = 0;
-            for(int k=0; k<n; k++) {
-                C[i][j] += A[i][k] * B[k][j];
+void squareMatrixMul(const ll *A, const ll *B, ll *C, int n) {
+    memset(C, 0, n * n * sizeof(ll)); // initialize matrix C with 0
+    
+    // Loop order optimization for better cache utilization
+    for (int i = 0; i < n; i++) {
+        for (int k = 0; k < n; k++) {
+            ll temp = A[i * n + k];  // Reduce memory access
+            for (int j = 0; j < n; j++) {
+                C[i * n + j] += temp * B[k * n + j];  
             }
         }
     }
-    return C;
 }
 
-// cloest power of 2
+// closest power of 2
 int closestPowerOf2(int n) {
     int p = 1;
-    while(p < n) {
+    while (p < n) {
         p *= 2;
     }
     return p;
 }
 
-ll** strassenOfN(ll** A, ll** B, int n) {
-    // base case
-    if(n == 1) {
-        ll** C = new ll*[1];
-        C[0] = new ll[1];
-        C[0][0] = A[0][0] * B[0][0];
-        return C;
-    }
+// convert the matrix to 4 submatrices
+// [A11], [A12], [A21], [A22]
+void toFourMatrix(ll *subMatrices, const ll* A, int n) {
+    int newSize = n / 2;
+    int partSize = newSize * newSize;
 
-    // use the normal multiplication if the matrix is small
-    if(n <= useStrassenThreshold) {
-        return squareMatrixMul(A, B, n);
-    }
-
-    // divide the matrices
-    ll** A11 = new ll*[n/2];
-    ll** A12 = new ll*[n/2];
-    ll** A21 = new ll*[n/2];
-    ll** A22 = new ll*[n/2];
-    ll** B11 = new ll*[n/2];
-    ll** B12 = new ll*[n/2];
-    ll** B21 = new ll*[n/2];
-    ll** B22 = new ll*[n/2];
-
-    for(int i=0; i<n/2; i++) {
-        A11[i] = new ll[n/2];
-        A12[i] = new ll[n/2];
-        A21[i] = new ll[n/2];
-        A22[i] = new ll[n/2];
-        B11[i] = new ll[n/2];
-        B12[i] = new ll[n/2];
-        B21[i] = new ll[n/2];
-        B22[i] = new ll[n/2];
-
-        // copy the elements
-        for(int j=0; j<n/2; j++) {
-            A11[i][j] = A[i][j];
-            A12[i][j] = A[i][j+n/2];
-            A21[i][j] = A[i+n/2][j];
-            A22[i][j] = A[i+n/2][j+n/2];
-            B11[i][j] = B[i][j];
-            B12[i][j] = B[i][j+n/2];
-            B21[i][j] = B[i+n/2][j];
-            B22[i][j] = B[i+n/2][j+n/2];
+    for (int i = 0; i < newSize; i++) {
+        for (int j = 0; j < newSize; j++) {
+            subMatrices[i * newSize + j] = A[i * n + j];
+            subMatrices[i * newSize + j + partSize] = A[i * n + j + newSize];
+            subMatrices[i * newSize + j + 2 * partSize] = A[(i + newSize) * n + j];
+            subMatrices[i * newSize + j + 3 * partSize] = A[(i + newSize) * n + j + newSize];
         }
     }
+}
 
-    // calculate 7 matrices
-    ll** t1 = squareMatrixSum(A21, A22, n/2);
-    ll** t2 = squareMatrixSub(A22, A12, n/2);
-    ll** t3 = squareMatrixSub(A22, A11, n/2);
-    ll** t4 = squareMatrixSub(B22, B11, n/2);
-    ll** t5 = squareMatrixSum(B21, B22, n/2);
-    ll** t6 = squareMatrixSub(B22, B12, n/2);
+void strassenOfN(const ll* A, const ll* B, ll* C, int n) {
+    // base case
+    if (n <= useStrassenThreshold) {  
+        squareMatrixMul(A, B, C, n);
+        return;
+    }
 
-    ll** M1 = strassenOfN(A11, B11, n/2);
-    ll** M2 = strassenOfN(A12, B21, n/2);
-    ll** M3 = strassenOfN(A21, t4, n/2);
-    ll** M4 = strassenOfN(A22, B22, n/2);
-    ll** M5 = strassenOfN(t1, t5, n/2);
-    ll** M6 = strassenOfN(t2, t6, n/2);
-    ll** M7 = strassenOfN(t3, B12, n/2);
+    int newSize = n / 2;
+    int partSize = newSize * newSize;
 
-    delete[] t1; delete[] t2; delete[] t3; delete[] t4; delete[] t5; delete[] t6;
+    ll *tempStorage = new ll[(7 + 2) * partSize]; // M1-M7 + temp1 + temp2
+    ll *subA = new ll[n * n]; // to store the submatrices (ABC)
+    ll *subB = new ll[n * n];
+    
+    // divide the matrices
+    toFourMatrix(subA, A, n);
+    toFourMatrix(subB, B, n);
+    
+    ll *A11 = subA;
+    ll *A12 = A11 + partSize;
+    ll *A21 = A12 + partSize;
+    ll *A22 = A21 + partSize;
+    
+    ll *B11 = subB;
+    ll *B12 = B11 + partSize;
+    ll *B21 = B12 + partSize;
+    ll *B22 = B21 + partSize;
+    
+    
+    ll *M1 = tempStorage;
+    ll *M2 = M1 + partSize;
+    ll *M3 = M2 + partSize;
+    ll *M4 = M3 + partSize;
+    ll *M5 = M4 + partSize;
+    ll *M6 = M5 + partSize;
+    ll *M7 = M6 + partSize;
+    
+    ll *temp1 = M7 + partSize;
+    ll *temp2 = temp1 + partSize;
+    
+    // M1 = (A11 + A22) * (B11 + B22)
+    squareMatrixSum(A11, A22, temp1, newSize);
+    squareMatrixSum(B11, B22, temp2, newSize);
+    strassenOfN(temp1, temp2, M1, newSize);
+    // M2 = (A21 + A22) * (B11)
+    squareMatrixSum(A21, A22, temp1, newSize);
+    strassenOfN(temp1, B11, M2, newSize);
+    // M3 = (A11) * (B12 - B22)
+    squareMatrixSub(B12, B22, temp1, newSize);
+    strassenOfN(A11, temp1, M3, newSize);
+    // M4 = (A22) * (B21 - B11)
+    squareMatrixSub(B21, B11, temp1, newSize);
+    strassenOfN(A22, temp1, M4, newSize);
+    // M5 = (A11 + A12) * (B22)
+    squareMatrixSum(A11, A12, temp1, newSize);
+    strassenOfN(temp1, B22, M5, newSize);
+    // M6 = (A21 - A11) * (B11 + B12)
+    squareMatrixSub(A21, A11, temp1, newSize);
+    squareMatrixSum(B11, B12, temp2, newSize);
+    strassenOfN(temp1, temp2, M6, newSize);
+    // M7 = (A12 - A22) * (B21 + B22)
+    squareMatrixSub(A12, A22, temp1, newSize);
+    squareMatrixSum(B21, B22, temp2, newSize);
+    strassenOfN(temp1, temp2, M7, newSize);
+    
+    delete[] subA; delete[] subB;
 
     // calculate the result matrices
-    // C11 = M1 + M2
-    ll** C11 = squareMatrixSum(M1, M2, n/2);
-    // C12 = M5 - M7
-    ll** C12 = squareMatrixSub(M5, M7, n/2);
-    // C21 = M3 + M6
-    ll** C21 = squareMatrixSum(M3, M6, n/2);
-    // C22 = M5 + M6 - M2 - M4
-    ll** C22 = squareMatrixSum(M5, squareMatrixSub(squareMatrixSub(M6, M2, n/2), M4, n/2), n/2);
+    ll *subC = new ll[n * n];
 
-    // free the memory
-    delete[] M1; delete[] M2; delete[] M3; delete[] M4; delete[] M5; delete[] M6; delete[] M7;
-    delete[] A11; delete[] A12; delete[] A21; delete[] A22;
-    delete[] B11; delete[] B12; delete[] B21; delete[] B22;
+    ll *C11 = subC;
+    ll *C12 = C11 + partSize;
+    ll *C21 = C12 + partSize;
+    ll *C22 = C21 + partSize;
+    // C11 = M1 + M4 - M5 + M7
+    squareMatrixSum(M1, M4, temp1, newSize);
+    squareMatrixSub(temp1, M5, temp2, newSize);
+    squareMatrixSum(temp2, M7, C11, newSize);
+    // C12 = M3 + M5
+    squareMatrixSum(M3, M5, C12, newSize);
+    // C21 = M2 + M4
+    squareMatrixSum(M2, M4, C21, newSize);
+    // C22 = M1 - M2 + M3 + M6
+    squareMatrixSub(M1, M2, temp1, newSize);
+    squareMatrixSum(temp1, M3, temp2, newSize); 
+    squareMatrixSum(temp2, M6, C22, newSize);
 
+    delete[] tempStorage;
+    
     // merge the result matrices
-    ll** C = new ll*[n];
-    for(int i=0; i<n; i++) {
-        C[i] = new ll[n];
-    }
-    for(int i=0; i<n/2; i++) {
-        for(int j=0; j<n/2; j++) {
-            C[i][j] = C11[i][j];
-            C[i][j+n/2] = C12[i][j];
-            C[i+n/2][j] = C21[i][j];
-            C[i+n/2][j+n/2] = C22[i][j];
+    for (int i = 0; i < newSize; i++) {
+        for (int j = 0; j < newSize; j++) {
+            C[i * n + j] = C11[i * newSize + j];
+            C[i * n + j + newSize] = C12[i * newSize + j];
+            C[(i + newSize) * n + j] = C21[i * newSize + j];
+            C[(i + newSize) * n + j + newSize] = C22[i * newSize + j];
         }
     }
-
-    return C;
+    delete[] subC;
 }
 
-ll** strassen(ll** A, ll** B, int a, int b, int c, int d) {
-    // make the matrices square
-    int n = max(max(a,b), max(c,d));
-    n = closestPowerOf2(n);
-
-    // fill the matrices with 0 to make them square
-    ll **A1 = new ll*[n];
-    ll **B1 = new ll*[n];
-    for(int i=0; i<n; i++) {
-        A1[i] = new ll[n];
-        B1[i] = new ll[n];
-    }
-
-    // initialize the matrices
-    for(int i=0; i<n; i++) {
-        for(int j=0; j<n; j++) {
-            A1[i][j] = 0;
-            B1[i][j] = 0;
+void prettyPrintMatrix(const ll *A, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            printf("%lld%s", A[i * n + j], (j == n - 1) ? "\n" : " ");
         }
     }
-
-    // copy original values
-    for(int i=0; i<a; i++) {
-        for(int j=0; j<b; j++) {
-            A1[i][j] = A[i][j];
-        }
-    }
-    for(int i=0; i<c; i++) {
-        for(int j=0; j<d; j++) {
-            B1[i][j] = B[i][j];
-        }
-    }
-    return strassenOfN(A1, B1, n);
 }
-
 
 int main() {
-
     // read matrix sizes
-    int a,b,c,d;
+    int a, b, c, d, n;
     scanf("%d %d %d %d", &a, &b, &c, &d);
+    n = closestPowerOf2(max(max(a, b), max(c, d)));
+    
+    ll *A = new ll[n * n];
+    ll *B = new ll[n * n];
+    ll *C = new ll[n * n]; // result matrix
+
+    // initialize the matrices with 0
+    memset(A, 0, n * n * sizeof(ll)); 
+    memset(B, 0, n * n * sizeof(ll));
+    memset(C, 0, n * n * sizeof(ll));
 
     // read matrix A
-    ll **A = new ll*[a];
-    for(int i=0; i<a; i++) {
-        A[i] = new ll[b];
-    }
-    for(int i=0; i<a; i++) {
-        for(int j=0; j<b; j++) {
-            scanf("%ld", &A[i][j]);
+    for (int i = 0; i < a; i++) {
+        for (int j = 0; j < b; j++) {
+            scanf("%lld", &A[i * n + j]);
         }
     }
+
     // read matrix B
-    ll **B = new ll*[c];
-    for(int i=0; i<c; i++) {
-        B[i] = new ll[d];
-    }
-    for(int i=0; i<c; i++) {
-        for(int j=0; j<d; j++) {
-            scanf("%ld", &B[i][j]);
+    for (int i = 0; i < c; i++) {
+        for (int j = 0; j < d; j++) {
+            scanf("%lld", &B[i * n + j]);
         }
     }
 
     // multiply the matrices
-    ll** C = strassen(A, B, a, b, c, d);
+    strassenOfN(A, B, C, n);
 
-    // print the resuslt
-    for(int i=0; i<a; i++) {
-        for(int j=0; j<d; j++) {
-            printf("%ld%s", C[i][j], (i == a-1 && j == d-1) ? "\n" : " ");
+    // print the result
+    for (int i = 0; i < a; i++) {
+        for (int j = 0; j < d; j++) {
+            printf("%lld%s", C[i * n + j], (i == a-1) && (j == d-1) ? "" : " ");
         }
     }
+
+    // free the memory
+    delete[] A;
+    delete[] B;
+    delete[] C;
+
     return 0;
 }
