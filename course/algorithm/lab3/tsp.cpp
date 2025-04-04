@@ -12,6 +12,7 @@ using namespace std;
 int solveTSP(const int start, const int n, int **dist, int *ans) {
 
     if (n > MAXN) {
+        ans[0] = -2;
         return -2; // too many cities
     }
 
@@ -158,8 +159,8 @@ int main() {
 
     // print the result
     // answer required in 1-based index
-    if (ans[0] == -1) {
-        printf("-1\n");
+    if (ans[0] < 0) {
+        printf("%d\n", ans[0]);
     } else {
         for (int i = 0; i < n; i++) {
             printf("%d ", ans[i]+1);
